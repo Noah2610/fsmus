@@ -1,6 +1,6 @@
 mod playlists;
 
-use crate::config::Config;
+use crate::config::{Config, PlaybackBehavior};
 use playlists::{Playlist, Playlists};
 use rodio::{OutputStream, OutputStreamHandle};
 use std::path::{Path, PathBuf};
@@ -9,6 +9,8 @@ pub struct MusicPlayer {
     stream:    (OutputStream, OutputStreamHandle),
     music_dir: PathBuf,
     playlists: Playlists,
+    state:     PlaybackState,
+    behavior:  PlaybackBehavior,
 }
 
 impl MusicPlayer {
@@ -17,12 +19,19 @@ impl MusicPlayer {
         let music_dir = config.music_dir.clone();
         let playlists = Playlists::from(&music_dir);
 
-        dbg!(&playlists);
-
         Self {
             stream,
             music_dir,
             playlists,
+            state: PlaybackState::Stopped,
+            behavior: config.playback_behavior.clone(),
         }
     }
+}
+
+#[derive(Debug)]
+pub enum PlaybackState {
+    Stopped,
+    Playing,
+    Paused,
 }

@@ -6,11 +6,32 @@ use std::path::PathBuf;
 pub struct Config {
     /// The root directory from which to check for music and playlist directories.
     /// Can use "~", which expands to the user's home directory.
-    pub music_dir: PathBuf,
+    pub music_dir:         PathBuf,
     /// The host IP address to use for hosting the app with the "start" command.
-    pub host:      IpAddr,
+    pub host:              IpAddr,
     /// The port number to use for hosting the app with the "start" command.
-    pub port:      u16,
+    pub port:              u16,
+    /// The default playback behavior when the app starts.
+    /// Defaults to `Random`.
+    #[serde(default)]
+    pub playback_behavior: PlaybackBehavior,
+    /// The default selected playlist when the app starts.
+    /// Specify a playlist name, which is the path to the playlist directory,
+    /// relative to the `music_dir`.
+    #[serde(default)]
+    pub default_playlist:  Option<String>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub enum PlaybackBehavior {
+    Random,
+    Sequential,
+}
+
+impl Default for PlaybackBehavior {
+    fn default() -> Self {
+        Self::Random
+    }
 }
 
 impl Config {
