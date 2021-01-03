@@ -8,6 +8,7 @@ description = "Headless CLI music player with playlists as FS directories"
 [dependencies]
 clap = "3.0.0-beta.2"
 directories = "3.0.1"
+rodio = "0.13.0"
 ron = "0.6.4"
 
 [dependencies.serde]
