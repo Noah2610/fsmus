@@ -1,0 +1,9 @@
+[package]
+name = "fsmus"
+version = "0.0.0"
+authors = ["Noah Rosenzweig <rosenzweig.noah@gmail.com>"]
+edition = "2018"
+description = "Headless CLI music player with playlists as FS directories"
+
+[dependencies]
+clap = "2.33.3"
