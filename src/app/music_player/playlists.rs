@@ -8,8 +8,7 @@ pub struct Playlists(HashMap<String, Playlist>);
 
 #[derive(Debug)]
 pub struct Playlist {
-    path:  PathBuf,
-    songs: Vec<PathBuf>,
+    path: PathBuf,
 }
 
 impl From<&PathBuf> for Playlists {
@@ -27,16 +26,24 @@ impl From<&PathBuf> for Playlists {
                         let entry_path = entry.path();
                         if is_valid_audio_file(&entry_path) {
                             if let Some(path_s) = path.to_str() {
-                                let playlist_key =
+                                let mut playlist_key =
                                     path_s.to_string().replace(root_path_s, "");
-                                playlists
-                                    .entry(playlist_key)
-                                    .or_insert_with(|| Playlist {
-                                        path:  path.clone(),
-                                        songs: Vec::new(),
-                                    })
-                                    .songs
-                                    .push(entry_path);
+                                while !playlist_key.is_empty() {
+                                    if !playlists.contains_key(&playlist_key) {
+                                        playlists.insert(
+                                            playlist_key.clone(),
+                                            Playlist { path: path.clone() },
+                                        );
+                                    }
+                                    if let Some(slash_idx) =
+                                        playlist_key.rfind("/")
+                                    {
+                                        let _ =
+                                            playlist_key.split_off(slash_idx);
+                                    } else {
+                                        playlist_key.clear();
+                                    }
+                                }
                             }
                         } else if entry_path.is_dir() {
                             playlists = find_playlists(
