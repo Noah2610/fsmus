@@ -1,4 +1,6 @@
 #![enable(implicit_some)]
 (
-    music_dir: "~/Music/"
+    music_dir: "~/Music/",
+    host:      "127.0.0.1",
+    port:      9898,
 )

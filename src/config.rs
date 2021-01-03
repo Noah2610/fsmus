@@ -1,9 +1,16 @@
 use std::fs::File;
+use std::net::IpAddr;
 use std::path::PathBuf;
 
 #[derive(Deserialize, Debug)]
 pub struct Config {
+    /// The root directory from which to check for music and playlist directories.
+    /// Can use "~", which expands to the user's home directory.
     pub music_dir: PathBuf,
+    /// The host IP address to use for hosting the app with the "start" command.
+    pub host:      IpAddr,
+    /// The port number to use for hosting the app with the "start" command.
+    pub port:      u16,
 }
 
 impl Config {
@@ -41,9 +48,9 @@ impl Config {
             if config_file.is_file() {
                 Ok(config_file)
             } else {
-                Err(String::from(
-                    "No config.ron file in config No config.ron file in \
-                     config directory",
+                Err(format!(
+                    "No config.ron file in config directory {:?}",
+                    &config_dir
                 ))
             }
         }

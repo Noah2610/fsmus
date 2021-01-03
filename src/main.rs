@@ -18,7 +18,7 @@ fn main() {
     match run(args) {
         Ok(_) => (),
         Err(e) => {
-            eprintln!("{:?}", e);
+            eprintln!("{}", e);
             std::process::exit(1);
         }
     }
@@ -33,9 +33,17 @@ fn run(args: Args) -> Result<(), String> {
 }
 
 fn start_server(args: Args) -> Result<(), String> {
+    use std::net::TcpListener;
+
     let config = Config::load()?;
-    dbg!(&config);
-    dbg!("{}", config.music_dir.is_dir());
+
+    let tcp_listener =
+        TcpListener::bind((config.host, config.port)).map_err(|e| {
+            format!(
+                "Couldn't bind to address \"{}:{}\"\n{}",
+                config.host, config.port, e
+            )
+        })?;
 
     Ok(())
 }
