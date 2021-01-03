@@ -1,34 +1,16 @@
-use crate::config::Config;
-use rodio::{OutputStream, OutputStreamHandle};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 const SUPPORTED_FORMATS: [&'static str; 4] = ["mp3", "wav", "flac", "ogg"];
 
-pub struct MusicPlayer {
-    stream:    (OutputStream, OutputStreamHandle),
-    music_dir: PathBuf,
-    playlists: Playlists,
-}
-
-impl MusicPlayer {
-    pub fn new(config: &Config) -> Self {
-        let stream = rodio::OutputStream::try_default().unwrap();
-        let music_dir = config.music_dir.clone();
-        let playlists = Playlists::from(&music_dir);
-
-        dbg!(&playlists);
-
-        Self {
-            stream,
-            music_dir,
-            playlists,
-        }
-    }
-}
+#[derive(Debug)]
+pub struct Playlists(HashMap<String, Playlist>);
 
 #[derive(Debug)]
-struct Playlists(HashMap<String, Playlist>);
+pub struct Playlist {
+    path:  PathBuf,
+    songs: Vec<PathBuf>,
+}
 
 impl From<&PathBuf> for Playlists {
     fn from(root_path: &PathBuf) -> Self {
@@ -86,10 +68,4 @@ fn is_valid_audio_file(file: &PathBuf) -> bool {
         } else {
             false
         }
-}
-
-#[derive(Debug)]
-struct Playlist {
-    path:  PathBuf,
-    songs: Vec<PathBuf>,
 }
