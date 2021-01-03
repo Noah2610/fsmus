@@ -3,4 +3,6 @@
     music_dir: "~/Music/",
     host:      "127.0.0.1",
     port:      9898,
+    playback_behavior: Random,
+    default_playlist: "GameDev",
 )

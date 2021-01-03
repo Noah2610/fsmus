@@ -7,7 +7,11 @@ use music_player::MusicPlayer;
 pub fn start(args: Args) -> Result<(), String> {
     let config = Config::load()?;
 
-    let player = MusicPlayer::new(&config);
+    let mut player = MusicPlayer::new(&config);
+
+    // TODO
+    player.play_next();
+    loop {}
 
     start_server(&config)?;
 

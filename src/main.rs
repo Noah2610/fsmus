@@ -1,5 +1,6 @@
 extern crate clap;
 extern crate directories;
+extern crate rand;
 extern crate rodio;
 extern crate ron;
 #[macro_use]
