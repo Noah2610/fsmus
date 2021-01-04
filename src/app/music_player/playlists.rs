@@ -46,6 +46,8 @@ impl Playlist {
     }
 }
 
+type IsPlaylist = bool;
+
 impl From<&PathBuf> for Playlists {
     fn from(root_path: &PathBuf) -> Self {
         let root_path_s = root_path.to_str().unwrap();
@@ -54,48 +56,69 @@ impl From<&PathBuf> for Playlists {
             mut playlists: HashMap<PlaylistName, Playlist>,
             path: &PathBuf,
             root_path_s: &str,
-        ) -> HashMap<PlaylistName, Playlist> {
+        ) -> (HashMap<PlaylistName, Playlist>, IsPlaylist) {
+            let mut is_playlist_dir = false;
+
+            let mut add_path_to_playlist =
+                |playlists: &mut HashMap<PlaylistName, Playlist>| {
+                    if !is_playlist_dir {
+                        is_playlist_dir = true;
+                        let playlist_key = path
+                            .to_str()
+                            .expect("Couldn't to_str playlist path")
+                            .to_string()
+                            .replace(root_path_s, "");
+                        playlists.insert(playlist_key, Playlist {
+                            path: path.clone(),
+                        });
+                    }
+                };
+
             if let Ok(entries) = path.read_dir() {
                 for entry in entries {
                     if let Ok(entry) = entry {
                         let entry_path = entry.path();
                         if is_valid_audio_file(&entry_path) {
-                            if let Some(path_s) = path.to_str() {
-                                let mut playlist_key =
-                                    path_s.to_string().replace(root_path_s, "");
-                                while !playlist_key.is_empty() {
-                                    if !playlists.contains_key(&playlist_key) {
-                                        playlists.insert(
-                                            playlist_key.clone(),
-                                            Playlist { path: path.clone() },
-                                        );
-                                    }
-                                    if let Some(slash_idx) =
-                                        playlist_key.rfind("/")
-                                    {
-                                        let _ =
-                                            playlist_key.split_off(slash_idx);
-                                    } else {
-                                        playlist_key.clear();
-                                    }
-                                }
-                            }
+                            add_path_to_playlist(&mut playlists);
+                        // while !playlist_key.is_empty() {
+                        //     if !playlists.contains_key(&playlist_key) {
+                        //         playlists.insert(
+                        //             playlist_key.clone(),
+                        //             Playlist { path: path.clone() },
+                        //         );
+                        //     }
+                        //     if let Some(slash_idx) =
+                        //         playlist_key.rfind("/")
+                        //     {
+                        //         let _ =
+                        //             playlist_key.split_off(slash_idx);
+                        //     } else {
+                        //         playlist_key.clear();
+                        //     }
+                        // }
                         } else if entry_path.is_dir() {
-                            playlists = find_playlists(
-                                playlists,
-                                &entry_path,
-                                root_path_s,
-                            );
+                            let (new_playlists, was_playlist_dir) =
+                                find_playlists(
+                                    playlists,
+                                    &entry_path,
+                                    root_path_s,
+                                );
+                            playlists = new_playlists;
+                            if was_playlist_dir {
+                                add_path_to_playlist(&mut playlists);
+                            }
                         }
                     }
                 }
-                playlists
+                (playlists, is_playlist_dir)
             } else {
-                playlists
+                (playlists, is_playlist_dir)
             }
         }
 
-        Self(find_playlists(HashMap::new(), root_path, &root_path_s))
+        let (playlists, _) =
+            find_playlists(HashMap::new(), root_path, &root_path_s);
+        Self(playlists)
     }
 }
 

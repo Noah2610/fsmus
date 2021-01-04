@@ -61,12 +61,22 @@ impl MusicPlayer {
         }
     }
 
-    pub fn pause(&mut self) {
-        // self.stream.pause();
+    /// Resumes the paused audio playback.
+    pub fn play(&mut self) -> Result<(), String> {
+        self.get_playing_audio()?.play();
+        Ok(())
     }
 
-    pub fn play(&mut self) {
-        // self.stream.0
+    /// Pauses the playing audio playback.
+    pub fn pause(&mut self) -> Result<(), String> {
+        self.get_playing_audio()?.pause();
+        Ok(())
+    }
+
+    fn get_playing_audio(&self) -> Result<&Sink, String> {
+        self.playing_audio
+            .as_ref()
+            .ok_or(String::from("No playing audio sink"))
     }
 
     fn get_selected_playlist(&self) -> Option<&Playlist> {
