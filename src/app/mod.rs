@@ -10,7 +10,10 @@ pub fn start(args: Args) -> Result<(), String> {
     let mut player = MusicPlayer::new(&config);
 
     // TODO
-    player.play_next();
+    match player.play_next() {
+        Ok(song) => println!("Playing {:?}", song),
+        Err(e) => eprintln!("{}", e),
+    }
     loop {}
 
     start_server(&config)?;
