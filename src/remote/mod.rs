@@ -7,6 +7,7 @@ pub enum RequestMessage {
     Play,
     Pause,
     Next,
+    Seek(u64),
 }
 
 pub fn request(message: RequestMessage) -> Result<(), String> {

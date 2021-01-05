@@ -73,6 +73,10 @@ impl MusicPlayer {
         Ok(())
     }
 
+    pub fn seek(&mut self, time_ms: u64) -> Result<(), String> {
+        Err(String::from("Seeking not yet implemented"))
+    }
+
     fn get_playing_audio(&self) -> Result<&Sink, String> {
         self.playing_audio
             .as_ref()
@@ -86,6 +90,7 @@ impl MusicPlayer {
     }
 
     fn play_audio(&mut self, path: &PathBuf) -> Result<(), String> {
+        use rodio::Decoder;
         use std::fs::File;
         use std::io::BufReader;
 
@@ -95,10 +100,29 @@ impl MusicPlayer {
         //     rodio::Decoder::new(BufReader::new(file)).map_err(|e| {
         //         format!("Couldn't play audio file \"{:?}\"\n{}", &path, e)
         //     })?;
-        let sink =
-            self.stream.1.play_once(BufReader::new(file)).map_err(|e| {
-                format!("Error playing audio file \"{:?}\"\n{}", path, e)
-            })?;
+        // let source = BufReader::new(file).buffered();
+        let source = Decoder::new(BufReader::new(file))
+            .map_err(|e| format!("decode error: {}", e))?;
+        dbg!(source.channels());
+        dbg!(source.current_frame_len());
+        dbg!(source.sample_rate());
+        dbg!(source.total_duration());
+        let source = source.buffered();
+        // let source =
+        //     source.skip_duration(std::time::Duration::from_millis(1000));
+        // .convert_samples()
+        // .speed(1.2)
+        // .buffered()
+        // .low_pass(100)
+        // .reverb(std::time::Duration::from_millis(500), 5.0)
+        // .fade_in(std::time::Duration::from_millis(1000))
+        // .amplify(50.0);
+        let sink = Sink::try_new(&self.stream.1)
+            .map_err(|e| format!("sink error: {}", e))?;
+        sink.append(source);
+        // let sink = self.stream.1.play_once(source).map_err(|e| {
+        //     format!("Error playing audio file \"{:?}\"\n{}", path, e)
+        // })?;
         self.playing_audio = Some(sink);
 
         Ok(())

@@ -31,10 +31,13 @@ fn main() {
 fn run(args: Args) -> Result<(), String> {
     use remote::RequestMessage;
 
-    match &args.cmd {
+    match args.cmd {
         ArgCmd::Start => app::start(args),
         ArgCmd::Play => remote::request(RequestMessage::Play),
         ArgCmd::Pause => remote::request(RequestMessage::Pause),
         ArgCmd::Next => remote::request(RequestMessage::Next),
+        ArgCmd::Seek { millis } => {
+            remote::request(RequestMessage::Seek(millis))
+        }
     }
 }

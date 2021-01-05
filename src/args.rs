@@ -21,6 +21,11 @@ pub enum ArgCmd {
     /// Plays the next song from the selected playlist,
     /// depending on the playback behavior.
     Next,
+    /// Seeks to the given time in milliseconds.
+    Seek {
+        #[clap(required = true)]
+        millis: u64,
+    },
 }
 
 impl Default for ArgCmd {

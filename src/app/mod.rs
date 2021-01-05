@@ -66,6 +66,9 @@ fn start_server(
                                     msg.push(format!("playing: {:?}", song))
                                 })
                             }
+                            RequestMessage::Seek(time_ms) => {
+                                music_player.seek(time_ms)
+                            }
                         };
                         match res {
                             Ok(_) => (),
