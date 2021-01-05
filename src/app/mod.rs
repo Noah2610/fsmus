@@ -28,8 +28,9 @@ fn start_server(
     config: &Config,
     music_player: &mut MusicPlayer,
 ) -> Result<(), String> {
+    use crate::remote::RequestMessage;
     use std::io::{Read, Write};
-    use std::net::{TcpListener, TcpStream};
+    use std::net::TcpListener;
 
     let addr = (config.host, config.port);
     println!("Listening on {}:{}", addr.0, addr.1);
@@ -45,32 +46,46 @@ fn start_server(
         match stream.as_mut() {
             Ok(stream) => {
                 let mut msg = Vec::new();
-                let data = {
-                    let mut raw = [0; 512];
-                    let _ = stream.read(&mut raw);
-                    let s = String::from_utf8(raw.to_vec());
-                    match s {
-                        Ok(s) => s,
-                        Err(e) => {
-                            msg.push(format!(
-                                "Request data reading error: {}",
-                                e,
-                            ));
-                            String::new()
+                let request: Result<RequestMessage, String> = {
+                    let mut s = String::new();
+                    let _ = stream.read_to_string(&mut s);
+                    let deser = ron::de::from_str(&s).map_err(|e| {
+                        format!("request data deserializing error: {}", e)
+                    });
+                    msg.push(format!("command: {}", s));
+                    deser
+                };
+
+                match request {
+                    Ok(request) => {
+                        let res = match request {
+                            RequestMessage::Play => music_player.play(),
+                            RequestMessage::Pause => music_player.pause(),
+                            RequestMessage::Next => {
+                                music_player.play_next().map(|song| {
+                                    msg.push(format!("playing: {:?}", song))
+                                })
+                            }
+                        };
+                        match res {
+                            Ok(_) => (),
+                            Err(e) => msg.push(e),
                         }
                     }
-                };
+                    Err(e) => {
+                        msg.push(e);
+                    }
+                }
+
                 let now = chrono::Local::now();
-                println!(
-                    "--- INCOMING DATA {}\n{}\n{}",
+                eprintln!(
+                    "--- INCOMING DATA {}\n{}",
                     now.format("%H:%M:%S"),
-                    &data,
                     msg.join("\n"),
                 );
 
-                let _ = stream.write(data.as_bytes());
-
-                stream.flush().unwrap();
+                // let _ = stream.write(data.as_bytes());
+                // stream.flush().unwrap();
             }
             Err(e) => {
                 eprintln!("Connection error: {}", e);

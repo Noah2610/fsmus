@@ -14,6 +14,13 @@ pub struct Args {
 pub enum ArgCmd {
     /// Start the `fsmus` server.
     Start,
+    /// Resumes playback of current track.
+    Play,
+    /// Pauses playback of current track.
+    Pause,
+    /// Plays the next song from the selected playlist,
+    /// depending on the playback behavior.
+    Next,
 }
 
 impl Default for ArgCmd {

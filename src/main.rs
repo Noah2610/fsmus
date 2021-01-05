@@ -10,6 +10,7 @@ extern crate serde;
 mod app;
 mod args;
 mod config;
+mod remote;
 
 use args::{ArgCmd, Args};
 use clap::Clap;
@@ -28,9 +29,12 @@ fn main() {
 }
 
 fn run(args: Args) -> Result<(), String> {
-    match &args.cmd {
-        ArgCmd::Start => app::start(args)?,
-    }
+    use remote::RequestMessage;
 
-    Ok(())
+    match &args.cmd {
+        ArgCmd::Start => app::start(args),
+        ArgCmd::Play => remote::request(RequestMessage::Play),
+        ArgCmd::Pause => remote::request(RequestMessage::Pause),
+        ArgCmd::Next => remote::request(RequestMessage::Next),
+    }
 }
