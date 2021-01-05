@@ -1,3 +1,4 @@
+extern crate chrono;
 extern crate clap;
 extern crate directories;
 extern crate rand;

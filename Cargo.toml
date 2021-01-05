@@ -6,6 +6,7 @@ edition = "2018"
 description = "Headless CLI music player with playlists as FS directories"
 
 [dependencies]
+chrono = "0.4.19"
 clap = "3.0.0-beta.2"
 directories = "3.0.1"
 rand = "0.8.0"
